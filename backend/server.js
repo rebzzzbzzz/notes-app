@@ -1,5 +1,15 @@
 const express = require('express');
+
+const { v4: uuidv4 } = require('uuid');
+
 const cors = require('cors');
+
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  allowedHeaders: ['Content-Type'], 
+};
+
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -8,7 +18,7 @@ const PORT = 5000;
 
 const notesFilePath = path.join(__dirname, 'data', 'notes.json');
 
-app.use(cors());         
+app.use(cors(corsOptions));        
 app.use(express.json());   
 
 async function getNotes() {
@@ -47,7 +57,7 @@ app.post('/notes', async (req, res) => {
         const notes = await getNotes();
         
         const newNote = {
-            id: Date.now(),                  
+            id: uuidv4(),                 
             title,
             content,
             tags: tags || [],                  
@@ -66,7 +76,7 @@ app.post('/notes', async (req, res) => {
 
 app.delete('/notes/:id', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const notes = await getNotes();
         const filteredNotes = notes.filter(note => note.id !== id);
         
@@ -84,7 +94,7 @@ app.delete('/notes/:id', async (req, res) => {
 
 app.put('/notes/:id', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const { title, content, tags } = req.body;
         
         const notes = await getNotes();
