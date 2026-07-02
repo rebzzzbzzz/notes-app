@@ -1,25 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ThemeToggle from './components/ThemeToggle';
 import NoteForm from './components/form/NoteForm';
 import NoteList from './components/utils/NoteList';
 import Modal from './components/form/Modal';
 import DeleteConfirmModal from './components/utils/DeleteConfirmModal';
-import { useNotes } from './context/NotesContext';
+import { useNotesStore } from './store/notesStore';
 import { useNotesFilter } from './hooks/useNotesFilter';
+import { useShallow } from 'zustand/react/shallow';
 
 function App() {
-
-  const { notes, loading, error, handleCreate, handleUpdate, handleDelete } = useNotes();
-  
+  const { notes, loading, error, fetchNotes, addNote, updateNote, deleteNote } = useNotesStore(
+    useShallow((state) => ({
+      notes: state.notes,
+      loading: state.loading,
+      error: state.error,
+      fetchNotes: state.fetchNotes,
+      addNote: state.addNote,
+      updateNote: state.updateNote,
+      deleteNote: state.deleteNote,
+    }))
+  );
 
   const { searchTerm, setSearchTerm, selectedTag, setSelectedTag, filteredNotes, allTags } = useNotesFilter(notes);
-  
   const [editingNote, setEditingNote] = useState(null);
   const [noteToDelete, setNoteToDelete] = useState(null);
 
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
+
   const handleDeleteConfirm = () => {
     if (noteToDelete) {
-      handleDelete(noteToDelete);
+      deleteNote(noteToDelete);
       setNoteToDelete(null);
     }
   };
@@ -40,7 +52,7 @@ function App() {
 
         <input
           type="text"
-          placeholder=" Поиск по заметкам..."
+          placeholder="🔍 Поиск по заметкам..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full px-4 py-3 text-base bg-bg-card border-2 border-border-light rounded-xl text-text-primary focus:outline-none focus:border-accent-blue transition-all mb-4"
@@ -98,10 +110,10 @@ function App() {
           <NoteForm
             onSubmit={(data) => {
               if (editingNote?.id) {
-                handleUpdate(editingNote.id, data);
+                updateNote(editingNote.id, data);
                 setEditingNote(null);
               } else {
-                handleCreate(data);
+                addNote(data);
               }
             }}
             initialData={editingNote?.id ? editingNote : null}

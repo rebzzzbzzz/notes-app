@@ -7,7 +7,7 @@ function DeleteConfirmModal({ isOpen, onClose, onConfirm }) {
         Подтверждение удаления
       </h3>
       <p className="text-text-secondary mb-6">
-        Вы действительно хотите удалить эту заметку?
+        Вы действительно хотите удалить эту заметку? Это действие нельзя отменить.
       </p>
       <div className="flex gap-3">
         <button

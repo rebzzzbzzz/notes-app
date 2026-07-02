@@ -24,12 +24,12 @@ function Modal({ isOpen, onClose, children }) {
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="bg-bg-card rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="float-right text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl leading-none transition"
+          className="float-right text-text-muted hover:text-text-primary text-2xl leading-none transition"
         >
           ✕
         </button>
