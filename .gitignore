@@ -11,3 +11,7 @@ build/
 dist/
 .cache/
 .parcel-cache/
+
+.env
+.env.*
+!.env.example

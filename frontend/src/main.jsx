@@ -2,11 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/index.css';
+import { NotesProvider } from './context/NotesProvider';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 if (import.meta.env.DEV) {
   try {
-    const response = await fetch('http://localhost:5000/notes');
+    const response = await fetch(`${API_URL}/notes`);
     if (response.ok) {
       console.log(' Бэкенд доступен, MSW выключен');
     } else {
@@ -19,10 +21,12 @@ if (import.meta.env.DEV) {
     });
     console.log(' MSW включен (бэкенд не доступен)');
   }
-};
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <NotesProvider>
+      <App />
+    </NotesProvider>
   </React.StrictMode>
 );

@@ -1,64 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ThemeToggle from './components/ThemeToggle';
 import NoteForm from './components/form/NoteForm';
 import NoteList from './components/utils/NoteList';
 import Modal from './components/form/Modal';
-import { useDebounce } from './hooks/useDebounce';
-import { getNotes, createNote, deleteNote, updateNote } from './services/api';
+import DeleteConfirmModal from './components/utils/DeleteConfirmModal';
+import { useNotes } from './context/NotesContext';
+import { useNotesFilter } from './hooks/useNotesFilter';
 
 function App() {
-  const [notes, setNotes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearch = useDebounce(searchTerm, 300);
-  const [selectedTag, setSelectedTag] = useState('');
+
+  const { notes, loading, error, handleCreate, handleUpdate, handleDelete } = useNotes();
+  
+
+  const { searchTerm, setSearchTerm, selectedTag, setSelectedTag, filteredNotes, allTags } = useNotesFilter(notes);
+  
   const [editingNote, setEditingNote] = useState(null);
+  const [noteToDelete, setNoteToDelete] = useState(null);
 
-  useEffect(() => {
-    let shouldUpdate = true;
-    const fetchNotes = async () => {
-      try {
-        const data = await getNotes();
-        if (shouldUpdate) {
-          setNotes(data);
-          setLoading(false);
-        }
-      } catch {
-        if (shouldUpdate) {
-          setError('Не удалось загрузить заметки');
-          setLoading(false);
-        }
-      }
-    };
-    fetchNotes();
-    return () => { shouldUpdate = false; };
-  }, []);
-
-  const handleCreate = async (newNote) => {
-    const created = await createNote(newNote);
-    setNotes([created, ...notes]);
+  const handleDeleteConfirm = () => {
+    if (noteToDelete) {
+      handleDelete(noteToDelete);
+      setNoteToDelete(null);
+    }
   };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Удалить заметку?')) return;
-    await deleteNote(id);
-    setNotes(notes.filter(n => n.id !== id));
-  };
-
-  const handleUpdate = async (id, data) => {
-    const updated = await updateNote(id, data);
-    setNotes(notes.map(n => n.id === id ? updated : n));
-    setEditingNote(null);
-  };
-
-  const allTags = [...new Set(notes.flatMap(n => n.tags || []))];
-  const filteredNotes = notes.filter(note => {
-    const matchSearch = note.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-                        note.content.toLowerCase().includes(debouncedSearch.toLowerCase());
-    const matchTag = selectedTag === '' || (note.tags && note.tags.includes(selectedTag));
-    return matchSearch && matchTag;
-  });
 
   if (loading) return <div className="text-center py-10 text-text-secondary">Загрузка заметок...</div>;
   if (error) return <div className="text-center py-10 text-danger">{error}</div>;
@@ -76,7 +40,7 @@ function App() {
 
         <input
           type="text"
-          placeholder="🔍 Поиск по заметкам..."
+          placeholder=" Поиск по заметкам..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full px-4 py-3 text-base bg-bg-card border-2 border-border-light rounded-xl text-text-primary focus:outline-none focus:border-accent-blue transition-all mb-4"
@@ -125,7 +89,7 @@ function App() {
 
         <NoteList
           notes={filteredNotes}
-          onDelete={handleDelete}
+          onDelete={setNoteToDelete}
           onEdit={setEditingNote}
           onTagClick={setSelectedTag}
         />
@@ -135,6 +99,7 @@ function App() {
             onSubmit={(data) => {
               if (editingNote?.id) {
                 handleUpdate(editingNote.id, data);
+                setEditingNote(null);
               } else {
                 handleCreate(data);
               }
@@ -143,6 +108,12 @@ function App() {
             onClose={() => setEditingNote(null)}
           />
         </Modal>
+
+        <DeleteConfirmModal 
+          isOpen={!!noteToDelete} 
+          onClose={() => setNoteToDelete(null)} 
+          onConfirm={handleDeleteConfirm} 
+        />
       </div>
     </div>
   );

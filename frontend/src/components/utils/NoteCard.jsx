@@ -1,6 +1,15 @@
+import { motion } from 'framer-motion';
+
 function NoteCard({ note, onDelete, onEdit, onTagClick }) {
   return (
-    <div className="bg-bg-card rounded-2xl border-2 border-border-light shadow-sm hover:shadow-lg transition-all duration-200 p-5 relative">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.3 }}
+      className="bg-bg-card rounded-2xl border-2 border-border-light shadow-sm hover:shadow-lg transition-all duration-200 p-5 relative"
+    >
       <div className="absolute top-3 right-3 flex gap-1">
         <button
           onClick={() => onEdit(note)}
@@ -40,7 +49,7 @@ function NoteCard({ note, onDelete, onEdit, onTagClick }) {
       <span className="block mt-2 text-text-muted text-xs">
         {new Date(note.createdAt).toLocaleString()}
       </span>
-    </div>
+    </motion.div>
   );
 }
 

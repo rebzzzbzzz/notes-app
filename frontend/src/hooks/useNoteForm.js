@@ -5,11 +5,13 @@ export function useNoteForm(onSubmit, initialData = null, onClose = null) {
   const [content, setContent] = useState(initialData?.content || '');
   const [tags, setTags] = useState(initialData?.tags?.join(', ') || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState(null);
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
+    setFormError(null);
     if (!title.trim() || !content.trim()) {
-      alert('Заполните заголовок и содержание');
+      setFormError('Заполните заголовок и содержание');
       return;
     }
 
@@ -27,7 +29,7 @@ export function useNoteForm(onSubmit, initialData = null, onClose = null) {
       if (onClose) onClose();
 
     } catch {
-      alert('Ошибка сохранения');
+      setFormError('Ошибка сохранения');
     } finally {
       setIsSubmitting(false);
     }
@@ -41,6 +43,7 @@ export function useNoteForm(onSubmit, initialData = null, onClose = null) {
     tags,
     setTags,
     isSubmitting,
-    handleSubmit
+    handleSubmit,
+    formError
   };
 }

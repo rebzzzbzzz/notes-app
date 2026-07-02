@@ -9,14 +9,16 @@ function NoteForm({ onSubmit, initialData, onClose }) {
     tags,
     setTags,
     isSubmitting,
-    handleSubmit
+    handleSubmit,
+    formError,
   } = useNoteForm(onSubmit, initialData, onClose);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+      {formError && ( <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
         {initialData ? '✏️ Редактировать заметку' : '➕ Новая заметка'}
-      </h3>
+        {formError}
+      </h3>)}
       <input
         type="text"
         placeholder="Заголовок"
