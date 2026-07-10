@@ -13,7 +13,7 @@ export const useNotesStore = create(
         set({ loading: true, error: null }, false, 'fetchNotes/start');
         try {
           const data = await getNotes();
-          set({ notes: data, loading: false }, false, 'fetchNotes/success');
+          set({ notes: data, loading: false, error: null }, false, 'fetchNotes/success');
         } catch (err) {
           console.error('Ошибка загрузки заметок:', err);
           set({ error: 'Не удалось загрузить заметки', loading: false }, false, 'fetchNotes/error');
@@ -24,7 +24,7 @@ export const useNotesStore = create(
         try {
           const created = await createNote(newNote);
           set(
-            (state) => ({ notes: [created, ...state.notes] }),
+            (state) => ({ notes: [created, ...state.notes], error: null }),
             false,
             'addNote/success'
           );
@@ -40,6 +40,7 @@ export const useNotesStore = create(
           set(
             (state) => ({
               notes: state.notes.map((n) => (n.id === id ? updated : n)),
+              error: null,
             }),
             false,
             'updateNote/success'
@@ -54,7 +55,8 @@ export const useNotesStore = create(
         try {
           await deleteNote(id);
           set(
-            (state) => ({ notes: state.notes.filter((n) => n.id !== id) }),
+            (state) => ({ notes: state.notes.filter((n) => n.id !== id), error: null }),
+            
             false,
             'deleteNote/success'
           );

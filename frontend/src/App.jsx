@@ -9,7 +9,7 @@ import { useNotesFilter } from './hooks/useNotesFilter';
 import { useShallow } from 'zustand/react/shallow';
 
 function App() {
-  const { notes, loading, error, fetchNotes, addNote, updateNote, deleteNote } = useNotesStore(
+  const { notes, loading, error, fetchNotes, addNote, updateNote, deleteNote, clearError } = useNotesStore(
     useShallow((state) => ({
       notes: state.notes,
       loading: state.loading,
@@ -18,6 +18,7 @@ function App() {
       addNote: state.addNote,
       updateNote: state.updateNote,
       deleteNote: state.deleteNote,
+      clearError: state.clearError,
     }))
   );
 
@@ -36,12 +37,28 @@ function App() {
     }
   };
 
+  const handleErrorClose = () => {
+    clearError();
+  };
+      
   if (loading) return <div className="text-center py-10 text-text-secondary">Загрузка заметок...</div>;
-  if (error) return <div className="text-center py-10 text-danger">{error}</div>;
+   
 
   return (
     <div className="min-h-screen bg-bg-main text-text-primary transition-colors">
       <div className="max-w-6xl mx-auto px-4 py-6">
+          {error && (
+          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/30 border-2 border-danger rounded-xl flex items-center justify-between">
+            <p className="text-danger font-medium">{error}</p>
+            <button
+              onClick={handleErrorClose}
+              className="ml-4 text-danger hover:text-red-700 dark:hover:text-red-400 transition"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         <div className="flex justify-between items-center mb-8 pb-4 border-b-2 border-border-light">
           <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
             📝 Мои заметки
@@ -106,18 +123,21 @@ function App() {
           onTagClick={setSelectedTag}
         />
 
-        <Modal isOpen={!!editingNote} onClose={() => setEditingNote(null)}>
+        <Modal isOpen={!!editingNote} onClose={() => {setEditingNote(null); clearError();}}>
           <NoteForm
             onSubmit={(data) => {
               if (editingNote?.id) {
                 updateNote(editingNote.id, data);
                 setEditingNote(null);
+                clearError();
               } else {
                 addNote(data);
+                setEditingNote(null); 
+                clearError();
               }
             }}
             initialData={editingNote?.id ? editingNote : null}
-            onClose={() => setEditingNote(null)}
+            onClose={() => {setEditingNote(null); clearError();}}
           />
         </Modal>
 
